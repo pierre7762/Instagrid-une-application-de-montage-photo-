@@ -41,12 +41,22 @@ class ViewController: UIViewController {
     var imageToShare: UIImage!
     var centerOriginContainerView: CGPoint!
     var initialFrame: CGRect!
+    
+    enum showLayerEnum {
+        case showLayer1
+        case showLayer2
+        case showLayer3
+    }
+    
+    var layerShow = showLayerEnum.showLayer1
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
         picker.delegate = self
-        showLayer1()
+//        showLayer1()
+        showLayerSelected(layerSelected: .showLayer1)
+        
         
         //Save origin position of containerView-
         centerOriginContainerView = containerViews.center
@@ -64,34 +74,38 @@ class ViewController: UIViewController {
         view.addGestureRecognizer(swipeLeft)
     }
     
-    override func viewDidAppear(_ animated: Bool) {
+    override func viewDidLayoutSubviews() {
         initialFrame = containerViews.frame
     }
-    
-    
     
 //MARK: Fonction
     @objc func shareAfterSwipeUp(_ gesture: UISwipeGestureRecognizer) {
         if UIApplication.shared.statusBarOrientation.isPortrait {
-            UIView.animate(withDuration: 1) {
-                self.containerViews.frame.origin.y = -300
-            }
-            takeImageFromView(containerViews)
-            shareImage()
+            swipeAnimated()
         }
     }
 
     @objc func shareAfterSwipeLeft(_ gesture: UISwipeGestureRecognizer) {
         if UIApplication.shared.statusBarOrientation.isLandscape {
-            print("swipe left to share")
-            
+            swipeAnimated()
+        }
+    }
+    
+    private func swipeAnimated() {
+        switch UIApplication.shared.statusBarOrientation {
+        case .portrait:
+            UIView.animate(withDuration: 1) {
+                self.containerViews.frame.origin.y = -300
+            }
+        case .landscapeLeft, .landscapeRight, .portraitUpsideDown :
             UIView.animate(withDuration: 1) {
                 self.containerViews.frame.origin.x = -300
             }
-            
-            takeImageFromView(containerViews)
-            shareImage()
+        default:
+            print("orientation unknow")
         }
+        takeImageFromView(containerViews)
+        shareImage()
     }
     
     //Transform UIView in UIImage
@@ -132,36 +146,35 @@ class ViewController: UIViewController {
         present(picker, animated: true, completion: nil)
     }
     
-    private func showLayer1() {
-        viewLayer1.isHidden = false
-        viewLayer2.isHidden = true
-        viewLayer3.isHidden = true
+    private func showLayerSelected(layerSelected: showLayerEnum) {
+        layerShow = layerSelected
         
-        layer1Button.setBackgroundImage(UIImage(named: "Layout 1 select"), for: .normal)
-        layer2Button.setBackgroundImage(UIImage(named: "Layout 2"), for: .normal)
-        layer3Button.setBackgroundImage(UIImage(named: "Layout 3"), for: .normal)
+        switch layerShow {
+        case .showLayer1:
+            viewLayer1.isHidden = false
+            viewLayer2.isHidden = true
+            viewLayer3.isHidden = true
+            layer1Button.setBackgroundImage(UIImage(named: "Layout 1 select"), for: .normal)
+            layer2Button.setBackgroundImage(UIImage(named: "Layout 2"), for: .normal)
+            layer3Button.setBackgroundImage(UIImage(named: "Layout 3"), for: .normal)
+            
+        case .showLayer2:
+            viewLayer1.isHidden = true
+            viewLayer2.isHidden = false
+            viewLayer3.isHidden = true
+            layer1Button.setBackgroundImage(UIImage(named: "Layout 1"), for: .normal)
+            layer2Button.setBackgroundImage(UIImage(named: "Layout 2 select"), for: .normal)
+            layer3Button.setBackgroundImage(UIImage(named: "Layout 3"), for: .normal)
+            
+        case .showLayer3:
+            viewLayer1.isHidden = true
+            viewLayer2.isHidden = true
+            viewLayer3.isHidden = false
+            layer1Button.setBackgroundImage(UIImage(named: "Layout 1"), for: .normal)
+            layer2Button.setBackgroundImage(UIImage(named: "Layout 2"), for: .normal)
+            layer3Button.setBackgroundImage(UIImage(named: "Layout 3 select"), for: .normal)
+        }
     }
-    
-    private func showLayer2() {
-        viewLayer1.isHidden = true
-        viewLayer2.isHidden = false
-        viewLayer3.isHidden = true
-        
-        layer1Button.setBackgroundImage(UIImage(named: "Layout 1"), for: .normal)
-        layer2Button.setBackgroundImage(UIImage(named: "Layout 2 select"), for: .normal)
-        layer3Button.setBackgroundImage(UIImage(named: "Layout 3"), for: .normal)
-    }
-    
-    private func showLayer3() {
-        viewLayer1.isHidden = true
-        viewLayer2.isHidden = true
-        viewLayer3.isHidden = false
-        
-        layer1Button.setBackgroundImage(UIImage(named: "Layout 1"), for: .normal)
-        layer2Button.setBackgroundImage(UIImage(named: "Layout 2"), for: .normal)
-        layer3Button.setBackgroundImage(UIImage(named: "Layout 3 select"), for: .normal)
-    }
-    
     
 //MARK: Action
     //Layer 1
@@ -202,13 +215,13 @@ class ViewController: UIViewController {
     
     //Choice layer
     @IBAction func layer1Selected(_ sender: Any) {
-        showLayer1()
+        showLayerSelected(layerSelected: .showLayer1)
     }
     @IBAction func layer2Selected(_ sender: Any) {
-        showLayer2()
+        showLayerSelected(layerSelected: .showLayer2)
     }
     @IBAction func layer3Selected(_ sender: Any) {
-        showLayer3()
+        showLayerSelected(layerSelected: .showLayer3)
     }
     
 
