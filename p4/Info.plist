@@ -68,6 +68,6 @@
 		<string>Delm-Meduim.otf</string>
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Ajouter une phot de votre galerie </string>
+	<string>Sélectionner des photos</string>
 </dict>
 </plist>

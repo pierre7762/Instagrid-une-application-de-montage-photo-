@@ -4,7 +4,7 @@
 //
 //  Created by Pierre Lemère on 24/02/2021.
 //
-
+import Foundation
 import UIKit
 
 class ViewController: UIViewController {
@@ -54,9 +54,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         picker.delegate = self
-//        showLayer1()
         showLayerSelected(layerSelected: .showLayer1)
-        
         
         //Save origin position of containerView-
         centerOriginContainerView = containerViews.center
@@ -79,6 +77,8 @@ class ViewController: UIViewController {
     }
     
 //MARK: Fonction
+    
+    
     @objc func shareAfterSwipeUp(_ gesture: UISwipeGestureRecognizer) {
         if UIApplication.shared.statusBarOrientation.isPortrait {
             swipeAnimated()
