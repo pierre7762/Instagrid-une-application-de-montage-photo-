@@ -39,6 +39,8 @@ class ViewController: UIViewController {
     var picker: UIImagePickerController = UIImagePickerController()
     var imageSelected: UIImageView!
     var imageToShare: UIImage!
+    var centerOriginContainerView: CGPoint!
+    var initialFrame: CGRect!
 
 
     override func viewDidLoad() {
@@ -46,44 +48,53 @@ class ViewController: UIViewController {
         picker.delegate = self
         showLayer1()
         
+        //Save origin position of containerView-
+        centerOriginContainerView = containerViews.center
         
+        //Share to swipe up
         let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(shareAfterSwipeUp(_:)))
         swipeUp.direction = .up
         swipeUp.numberOfTouchesRequired = 1
         view.addGestureRecognizer(swipeUp)
 
+        //Share to swipe left
         let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(shareAfterSwipeLeft(_:)))
         swipeLeft.direction = .left
         swipeLeft.numberOfTouchesRequired = 1
         view.addGestureRecognizer(swipeLeft)
-        
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        
+        initialFrame = containerViews.frame
     }
     
     
     
 //MARK: Fonction
-    
     @objc func shareAfterSwipeUp(_ gesture: UISwipeGestureRecognizer) {
-        if UIDevice.current.orientation == .portrait {
-            print("swipe up to share")
+        if UIApplication.shared.statusBarOrientation.isPortrait {
+            UIView.animate(withDuration: 1) {
+                self.containerViews.frame.origin.y = -300
+            }
             takeImageFromView(containerViews)
             shareImage()
         }
     }
-    
+
     @objc func shareAfterSwipeLeft(_ gesture: UISwipeGestureRecognizer) {
-        if UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight {
+        if UIApplication.shared.statusBarOrientation.isLandscape {
             print("swipe left to share")
+            
+            UIView.animate(withDuration: 1) {
+                self.containerViews.frame.origin.x = -300
+            }
+            
             takeImageFromView(containerViews)
             shareImage()
         }
     }
     
+    //Transform UIView in UIImage
     private func takeImageFromView(_ v: UIView) {
         let renderer = UIGraphicsImageRenderer(size: v.layer.bounds.size)
         let image = renderer.image { ctx in
@@ -103,6 +114,13 @@ class ViewController: UIViewController {
 
         // exclude some activity types from the list (optional)
         activityViewController.excludedActivityTypes = [ UIActivity.ActivityType.postToFacebook ]
+        
+        activityViewController.completionWithItemsHandler = { activity, success, items, error in
+            
+            UIView.animate(withDuration: 0.5) {
+                self.containerViews.frame = self.initialFrame
+            }
+        }
 
         // present the view controller
         self.present(activityViewController, animated: true, completion: nil)
@@ -112,7 +130,6 @@ class ViewController: UIViewController {
         imageSelected = positionImage
         picker.sourceType = .photoLibrary
         present(picker, animated: true, completion: nil)
-        
     }
     
     private func showLayer1() {
@@ -194,15 +211,7 @@ class ViewController: UIViewController {
         showLayer3()
     }
     
-    @IBAction func swiped(_ sender: UISwipeGestureRecognizer) {
-        print("swipe")
-        if sender.direction == .up {
-            print("up")
-        }
-        if sender.direction == .left {
-            print("left")
-        }
-    }
+
     
 }
 
